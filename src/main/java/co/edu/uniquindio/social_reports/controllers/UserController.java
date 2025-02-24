@@ -1,6 +1,6 @@
 package co.edu.uniquindio.social_reports.controllers;
 
-import co.edu.uniquindio.social_reports.dtos.MessageDTO;
+import co.edu.uniquindio.social_reports.dtos.reponses.MessageDTO;
 import co.edu.uniquindio.social_reports.dtos.user.ChangePasswordDTO;
 import co.edu.uniquindio.social_reports.dtos.user.RegisterUserDTO;
 import co.edu.uniquindio.social_reports.dtos.user.UpdateUserDTO;
