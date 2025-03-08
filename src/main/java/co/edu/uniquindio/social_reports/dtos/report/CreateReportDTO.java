@@ -9,7 +9,7 @@ public record CreateReportDTO(
         @NotBlank String title,
         @NotNull Category category,
         @NotBlank String description,
-        @NotNull Location location,
+        @NotNull LocationDTO location,
         @NotBlank String imageUrl,
         @NotBlank String userId
 ) {

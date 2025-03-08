@@ -1,9 +1,12 @@
 package co.edu.uniquindio.social_reports.services.impl;
 
 import co.edu.uniquindio.social_reports.dtos.report.*;
+import co.edu.uniquindio.social_reports.model.enums.Category;
 import co.edu.uniquindio.social_reports.services.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +49,30 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void changeStatus(String id, ChangeStatusDTO changeStatusDTO) throws Exception {
         //TODO
+    }
+
+    @Override
+    public List<ReportInfoDTO> getReportsInfoByCategory(Category category) throws Exception {
+        return List.of();
+    }
+
+    @Override
+    public void checkReport(String id) throws Exception {
+
+    }
+
+    @Override
+    public void refuseReport(RefuseReportDTO reportDTO) throws Exception {
+
+    }
+
+    @Override
+    public void setAsResolved(String id) throws Exception {
+
+    }
+
+    @Override
+    public void createViewReport(ViewReportDTO dto) throws Exception {
+
     }
 }

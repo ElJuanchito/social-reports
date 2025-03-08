@@ -23,13 +23,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Registrar usuario", description = "Registra un nuevo usuario en la base de datos")
-    @PostMapping
-    public ResponseEntity<MessageDTO<String>> registerUser(@Valid @RequestBody RegisterUserDTO registerUserDTO) throws Exception {
-        userService.registerUser(registerUserDTO);
-        return ResponseEntity.status(201).body(new MessageDTO<>(false, "User registered successfully"));
-    }
-
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Actualizar datos del usuario", description = "Actualiza los datos de un usuario especifico mediante su id")
     @PutMapping("/{id}")

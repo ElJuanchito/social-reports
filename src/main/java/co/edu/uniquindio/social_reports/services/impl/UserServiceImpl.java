@@ -6,6 +6,8 @@ import co.edu.uniquindio.social_reports.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 //TODO add @Transaccional
@@ -48,6 +50,16 @@ public class UserServiceImpl implements UserService {
     public TokenDTO logIn(LogInDTO logInDTO) throws Exception {
         return null;
         //TODO
+    }
+
+    @Override
+    public List<UserInfoDTO> getAllUsers() throws Exception {
+        return List.of();
+    }
+
+    @Override
+    public void activateUser(String id, String code) throws Exception {
+
     }
 }
 
