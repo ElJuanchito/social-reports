@@ -5,7 +5,7 @@ import co.edu.uniquindio.social_reports.dtos.report.RefuseReportDTO;
 import co.edu.uniquindio.social_reports.dtos.report.ReportInfoDTO;
 import co.edu.uniquindio.social_reports.dtos.report.ViewReportDTO;
 import co.edu.uniquindio.social_reports.dtos.user.UserInfoDTO;
-import co.edu.uniquindio.social_reports.model.enums.Category;
+import co.edu.uniquindio.social_reports.model.entities.Category;
 import co.edu.uniquindio.social_reports.services.ReportService;
 import co.edu.uniquindio.social_reports.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;

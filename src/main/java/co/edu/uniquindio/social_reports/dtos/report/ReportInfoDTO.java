@@ -1,6 +1,6 @@
 package co.edu.uniquindio.social_reports.dtos.report;
 
-import co.edu.uniquindio.social_reports.model.enums.Category;
+import co.edu.uniquindio.social_reports.model.entities.Category;
 import co.edu.uniquindio.social_reports.model.vo.Location;
 
 public record ReportInfoDTO(
