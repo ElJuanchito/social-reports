@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 public record UpdateReportDTO(
         Category category,
         String description,
-        Location location,
+        LocationDTO location,
         @NotBlank String imageUrl,
         @NotBlank String userId
 ) {
