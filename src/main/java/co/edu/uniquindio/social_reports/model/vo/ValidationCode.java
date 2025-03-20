@@ -2,13 +2,15 @@ package co.edu.uniquindio.social_reports.model.vo;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Location {
+public class ValidationCode {
 
-    private double latitude;
-    private double longitude;
+    private LocalDateTime date;
+    private String code;
 }
