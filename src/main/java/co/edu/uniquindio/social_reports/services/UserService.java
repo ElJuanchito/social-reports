@@ -15,5 +15,5 @@ public interface UserService {
     void changePassword(ChangePasswordDTO changePasswordDTO) throws Exception;
     TokenDTO logIn(LogInDTO logInDTO) throws Exception;
     List<UserInfoDTO> getAllUsers() throws Exception;
-    void activateUser(String id, String code) throws Exception;
+    void activateUser(String email, String code) throws Exception;
 }
