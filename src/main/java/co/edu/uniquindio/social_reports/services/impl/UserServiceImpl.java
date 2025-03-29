@@ -2,22 +2,24 @@ package co.edu.uniquindio.social_reports.services.impl;
 
 import co.edu.uniquindio.social_reports.dtos.auth.TokenDTO;
 import co.edu.uniquindio.social_reports.dtos.user.*;
+import co.edu.uniquindio.social_reports.repositories.UserRepository;
 import co.edu.uniquindio.social_reports.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//TODO add @Transaccional
+@Transactional
 public class UserServiceImpl implements UserService {
 
-    //TODO add private final UserRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void registerUser(RegisterUserDTO userDTO) throws Exception {
-        //TODO
+        userRepository.existsByEmailIgnoreCase(userDTO.email());
     }
 
     @Override
