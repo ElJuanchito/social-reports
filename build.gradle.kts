@@ -30,6 +30,8 @@ dependencies {
 	implementation("io.github.cdimascio:dotenv-java:3.0.0")
 	implementation("com.cloudinary:cloudinary-http45:1.39.0")
 
+	implementation("org.springframework.security:spring-security-crypto:6.4.4")
+
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
