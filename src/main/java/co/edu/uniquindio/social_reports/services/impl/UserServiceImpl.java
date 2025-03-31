@@ -1,15 +1,15 @@
 package co.edu.uniquindio.social_reports.services.impl;
 
-import co.edu.uniquindio.social_reports.dtos.EmailDTO;
+import co.edu.uniquindio.social_reports.dtos.email.EmailDTO;
 import co.edu.uniquindio.social_reports.dtos.auth.TokenDTO;
 import co.edu.uniquindio.social_reports.dtos.user.*;
-import co.edu.uniquindio.social_reports.exceptions.*;
+import co.edu.uniquindio.social_reports.exceptions.user.*;
 import co.edu.uniquindio.social_reports.model.entities.User;
 import co.edu.uniquindio.social_reports.model.enums.UserStatus;
 import co.edu.uniquindio.social_reports.model.vo.ValidationCode;
 import co.edu.uniquindio.social_reports.repositories.UserRepository;
-import co.edu.uniquindio.social_reports.services.EmailService;
-import co.edu.uniquindio.social_reports.services.UserService;
+import co.edu.uniquindio.social_reports.services.interfaces.EmailService;
+import co.edu.uniquindio.social_reports.services.interfaces.UserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -20,9 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -116,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
         if(!passwordEncoder.matches(logInDTO.password(), user.getPassword())) throw new WrongPasswordException("La contrasena es incorrecta");
 
-        // Falta la auth por jwt
+        // TODO Falta la auth por jwt
 
         return null;
     }

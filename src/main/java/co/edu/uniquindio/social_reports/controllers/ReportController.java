@@ -2,15 +2,18 @@ package co.edu.uniquindio.social_reports.controllers;
 
 import co.edu.uniquindio.social_reports.dtos.reponses.MessageDTO;
 import co.edu.uniquindio.social_reports.dtos.report.*;
-import co.edu.uniquindio.social_reports.services.ReportService;
+import co.edu.uniquindio.social_reports.model.enums.City;
+import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
+import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.message.Message;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -70,9 +73,26 @@ public class ReportController {
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report status changed successfully"));
     }
 
+    @Operation(summary = "Obtener lista de ciudades", description = "Se obtiene la lista con todas las ciudades disponibles para los reportes")
+    @GetMapping("/cities")
+    public ResponseEntity< MessageDTO<List<City>> > getCities() throws Exception {
+        List<City> cities = reportService.getCities();
+        return ResponseEntity.status(200).body(new MessageDTO<>(false, cities));
+    }
 
+    @Operation(summary = "Obtener lista de estatus", description = "Se obtiene la lista con todas los estatus disponibles para los reportes")
+    @GetMapping("/statuses")
+    public ResponseEntity< MessageDTO<List<ReportStatus>> > getStatuses() throws Exception {
+        List<ReportStatus> statuses = reportService.getStatuses();
+        return ResponseEntity.status(200).body(new MessageDTO<>(false, statuses));
+    }
 
-
+    @Operation(summary = "Obtener lista de categorias", description = "Se obtiene la lista con todas las categorias disponibles para los reportes")
+    @GetMapping("/categories")
+    public ResponseEntity< MessageDTO<List<CategoryDTO>> > getCategories() throws Exception {
+        List<CategoryDTO> categories = reportService.getCategories();
+        return ResponseEntity.status(200).body(new MessageDTO<>(false, categories));
+    }
 
 
 

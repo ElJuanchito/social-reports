@@ -1,4 +1,4 @@
-package co.edu.uniquindio.social_reports.services;
+package co.edu.uniquindio.social_reports.services.interfaces;
 
 import co.edu.uniquindio.social_reports.dtos.auth.TokenDTO;
 import co.edu.uniquindio.social_reports.dtos.user.*;

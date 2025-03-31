@@ -1,4 +1,4 @@
-package co.edu.uniquindio.social_reports.dtos;
+package co.edu.uniquindio.social_reports.dtos.email;
 
 import jakarta.validation.constraints.NotBlank;
 

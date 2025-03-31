@@ -1,7 +1,9 @@
-package co.edu.uniquindio.social_reports.services;
+package co.edu.uniquindio.social_reports.services.interfaces;
 
 import co.edu.uniquindio.social_reports.dtos.report.*;
 import co.edu.uniquindio.social_reports.model.entities.Category;
+import co.edu.uniquindio.social_reports.model.enums.City;
+import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
 
 import java.util.List;
 
@@ -19,4 +21,7 @@ public interface ReportService {
     void refuseReport(RefuseReportDTO reportDTO) throws Exception;
     void setAsResolved(String id) throws Exception;
     void createViewReport(ViewReportDTO dto) throws Exception; //TODO Falta por completar
+    List<City> getCities() throws Exception;
+    List<ReportStatus> getStatuses() throws Exception;
+    List<CategoryDTO> getCategories() throws Exception;
 }

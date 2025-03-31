@@ -1,6 +1,6 @@
 package co.edu.uniquindio.social_reports.services.impl;
 
-import co.edu.uniquindio.social_reports.services.ImageService;
+import co.edu.uniquindio.social_reports.services.interfaces.ImageService;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;

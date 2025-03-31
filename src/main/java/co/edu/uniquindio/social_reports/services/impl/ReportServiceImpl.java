@@ -2,18 +2,22 @@ package co.edu.uniquindio.social_reports.services.impl;
 
 import co.edu.uniquindio.social_reports.dtos.report.*;
 import co.edu.uniquindio.social_reports.model.entities.Category;
-import co.edu.uniquindio.social_reports.services.ReportService;
+import co.edu.uniquindio.social_reports.model.enums.City;
+import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
+import co.edu.uniquindio.social_reports.repositories.ReportRepository;
+import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//TODO add @Transaccional
+@Transactional
 public class ReportServiceImpl implements ReportService {
 
-    //TODO add private final ReportRepository reportRepository;
+    private final ReportRepository reportRepository;
 
     @Override
     public void createReport(CreateReportDTO reportDTO) throws Exception {
@@ -74,5 +78,20 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void createViewReport(ViewReportDTO dto) throws Exception {
 
+    }
+
+    @Override
+    public List<City> getCities() throws Exception {
+        return List.of();
+    }
+
+    @Override
+    public List<ReportStatus> getStatuses() throws Exception {
+        return List.of();
+    }
+
+    @Override
+    public List<CategoryDTO> getCategories() throws Exception {
+        return List.of();
     }
 }

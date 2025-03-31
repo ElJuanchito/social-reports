@@ -29,6 +29,7 @@ dependencies {
 
 	implementation("io.github.cdimascio:dotenv-java:3.0.0")
 	implementation("com.cloudinary:cloudinary-http45:1.39.0")
+	implementation("com.google.firebase:firebase-admin:9.1.1")
 
 	implementation("org.springframework.security:spring-security-crypto:6.4.4")
 

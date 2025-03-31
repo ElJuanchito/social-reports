@@ -4,7 +4,7 @@ import co.edu.uniquindio.social_reports.dtos.auth.TokenDTO;
 import co.edu.uniquindio.social_reports.dtos.reponses.MessageDTO;
 import co.edu.uniquindio.social_reports.dtos.user.LogInDTO;
 import co.edu.uniquindio.social_reports.dtos.user.RegisterUserDTO;
-import co.edu.uniquindio.social_reports.services.UserService;
+import co.edu.uniquindio.social_reports.services.interfaces.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

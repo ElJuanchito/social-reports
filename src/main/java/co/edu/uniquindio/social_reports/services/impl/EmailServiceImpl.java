@@ -1,14 +1,10 @@
 package co.edu.uniquindio.social_reports.services.impl;
 
-import co.edu.uniquindio.social_reports.dtos.EmailDTO;
-import co.edu.uniquindio.social_reports.services.EmailService;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import co.edu.uniquindio.social_reports.dtos.email.EmailDTO;
+import co.edu.uniquindio.social_reports.services.interfaces.EmailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
