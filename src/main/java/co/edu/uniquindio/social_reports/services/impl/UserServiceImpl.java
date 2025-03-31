@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoDTO getUserInfo(String id) throws Exception {
+    public UserInfoDTO getUserInfo(String id) throws UserNotExistsException {
         User user = getUserById(id);
 
         return entityToInfoDTO(user);
