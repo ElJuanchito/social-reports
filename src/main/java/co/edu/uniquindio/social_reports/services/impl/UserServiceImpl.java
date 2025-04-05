@@ -8,18 +8,20 @@ import co.edu.uniquindio.social_reports.model.entities.User;
 import co.edu.uniquindio.social_reports.model.enums.UserStatus;
 import co.edu.uniquindio.social_reports.model.vo.ValidationCode;
 import co.edu.uniquindio.social_reports.repositories.UserRepository;
+import co.edu.uniquindio.social_reports.security.JWTUtils;
 import co.edu.uniquindio.social_reports.services.interfaces.EmailService;
 import co.edu.uniquindio.social_reports.services.interfaces.UserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -29,6 +31,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTUtils jwtUtils;
 
     @Override
     public void registerUser(RegisterUserDTO userDTO) throws Exception {
@@ -38,7 +42,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = dtoToEntity(userDTO);
-        user.setPassword(passwordEncode(userDTO.password()));
+        user.setPassword(passwordEncoder.encode(userDTO.password()));
         user = userRepository.save(user);
 
         sendRegistrationCode(user.getEmail(), user.getValidationCode().getCode());
@@ -96,7 +100,7 @@ public class UserServiceImpl implements UserService {
             if(validationCode.getCode().equals(changePasswordDTO.recoverCode())) {
 
                 if(validationCode.getDate().plusMinutes(15).isAfter(LocalDateTime.now())) {
-                    user.setPassword(passwordEncode(changePasswordDTO.newPassword()));
+                    user.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
                     userRepository.save(user);
                 } else {
                     user.setValidationCode(null);
@@ -110,13 +114,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public TokenDTO logIn(LogInDTO logInDTO) throws Exception {
         User user = getUserByEmail(logInDTO.email());
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         if(!passwordEncoder.matches(logInDTO.password(), user.getPassword())) throw new WrongPasswordException("La contrasena es incorrecta");
 
-        // TODO Falta la auth por jwt
-
-        return null;
+        String token = jwtUtils.generateToken(user.getId().toString(), createClaims(user));
+        return new TokenDTO(token);
     }
 
     @Override
@@ -210,9 +212,12 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(new EmailDTO(subject, code, email));
     }
 
-    private String passwordEncode(String password){
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder.encode( password );
+    private Map<String, String> createClaims(User user){
+        return Map.of(
+                "email", user.getEmail(),
+                "nombre", user.getName(),
+                "rol", "ROLE_"+user.getRole().name()
+        );
     }
 }
 
