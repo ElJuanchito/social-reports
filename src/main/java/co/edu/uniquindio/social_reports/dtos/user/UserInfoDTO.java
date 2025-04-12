@@ -5,6 +5,6 @@ public record UserInfoDTO(
         String city,
         String address,
         String phone,
-        String email
+        String emasil
 ) {
 }

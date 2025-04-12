@@ -5,6 +5,7 @@ import co.edu.uniquindio.social_reports.dtos.auth.TokenDTO;
 import co.edu.uniquindio.social_reports.dtos.user.*;
 import co.edu.uniquindio.social_reports.exceptions.user.*;
 import co.edu.uniquindio.social_reports.model.entities.User;
+import co.edu.uniquindio.social_reports.model.enums.Role;
 import co.edu.uniquindio.social_reports.model.enums.UserStatus;
 import co.edu.uniquindio.social_reports.model.vo.ValidationCode;
 import co.edu.uniquindio.social_reports.repositories.UserRepository;
@@ -43,6 +44,14 @@ public class UserServiceImpl implements UserService {
 
         User user = dtoToEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.password()));
+        user.setRole(Role.CLIENT);
+        user.setStatus(UserStatus.INACTIVE);
+        ValidationCode validationCode = ValidationCode
+                .builder()
+                .code(generateCode())
+                .date(LocalDateTime.now())
+                .build();
+        user.setValidationCode(validationCode);
         user = userRepository.save(user);
 
         sendRegistrationCode(user.getEmail(), user.getValidationCode().getCode());
