@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         String subject = "Password reset code";
-        emailService.sendEmail(new EmailDTO(subject, validationCode.getCode(), email));
+        emailService.sendEmail(new EmailDTO(email, subject, validationCode.getCode()));
     }
 
     @Override
@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService {
 
     private void sendRegistrationCode(String email, String code) throws Exception {
         String subject = "Registration confirmation code";
-        emailService.sendEmail(new EmailDTO(subject, code, email));
+        emailService.sendEmail(new EmailDTO(email, subject, code));
     }
 
     private Map<String, String> createClaims(User user){
