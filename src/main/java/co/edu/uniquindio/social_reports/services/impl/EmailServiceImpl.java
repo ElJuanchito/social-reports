@@ -14,26 +14,13 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Override
     @Async
     public void sendEmail(EmailDTO dto) throws Exception {
-
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(dto.to());
         message.setSubject(dto.subject());
+        message.setText(dto.text());
 
         mailSender.send(message);
     }
-
-//    @Async
-//    public void sendHtmlEmail(String to, String subject, String htmlBody) throws MessagingException {
-//        MimeMessage message = mailSender.createMimeMessage();
-//        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-//
-//        helper.setTo(to);
-//        helper.setSubject(subject);
-//        helper.setText(htmlBody, true);
-//
-//        mailSender.send(message);
-//    }
 }
