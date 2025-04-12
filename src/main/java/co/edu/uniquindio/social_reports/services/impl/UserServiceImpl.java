@@ -131,6 +131,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void resendActivationCode(String email) throws Exception {
+        User user = getUserByEmail(email);
+        if(user.getStatus() == UserStatus.ACTIVE) throw new UserAlreadyActiveException("El usuario ya esta activo");
+        ValidationCode validationCode = ValidationCode
+                .builder()
+                .code(generateCode())
+                .date(LocalDateTime.now())
+                .build();
+        user.setValidationCode(validationCode);
+        user = userRepository.save(user);
+
+        String subject = "Resend activation code";
+        emailService.sendEmail(new EmailDTO(subject, validationCode.getCode(), email));
+
+
+    }
+
+    @Override
     public List<UserInfoDTO> getAllUsers() throws Exception {
         return userRepository.findAll()
                 .stream()
@@ -158,6 +176,7 @@ public class UserServiceImpl implements UserService {
             }else throw new WrongCodeException("El codigo no es correcto");
         }
     }
+
 
     private User getEmailByEmail(String email) throws EmailNotExistsException {
         Optional<User> optionalUser = userRepository.findUserByEmail(email);

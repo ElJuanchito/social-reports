@@ -35,9 +35,16 @@ public class AuthController {
     }
 
     @Operation(summary = "Activar usuario", description = "Activa un usuario mediante la validacion del codigo que recibio al correo")
-    @PostMapping("/{id}/validateUser")
-    public ResponseEntity<MessageDTO<String>> validateRegisterCode(@PathVariable String id, @RequestParam String code) throws Exception {
-        userService.activateUser(id, code);
+    @PostMapping("/{email}/validateUser")
+    public ResponseEntity<MessageDTO<String>> validateRegisterCode(@PathVariable String email, @RequestParam String code) throws Exception {
+        userService.activateUser(email, code);
         return ResponseEntity.ok(new MessageDTO<>(false, "User activated successfully"));
+    }
+
+    @Operation(summary = "Reenviar codigo de activacion", description = "Reenvia el codigo de activacion al correo del usuario")
+    @PostMapping("/{email}/resendActivationCode")
+    public ResponseEntity<MessageDTO<String>> resendActivationCode(@PathVariable String email) throws Exception {
+        userService.resendActivationCode(email);
+        return ResponseEntity.ok(new MessageDTO<>(false, "Activation code resent successfully"));
     }
 }
