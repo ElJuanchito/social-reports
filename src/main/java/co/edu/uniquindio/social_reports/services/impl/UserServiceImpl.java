@@ -5,6 +5,7 @@ import co.edu.uniquindio.social_reports.dtos.auth.TokenDTO;
 import co.edu.uniquindio.social_reports.dtos.user.*;
 import co.edu.uniquindio.social_reports.exceptions.user.*;
 import co.edu.uniquindio.social_reports.model.entities.User;
+import co.edu.uniquindio.social_reports.model.enums.Role;
 import co.edu.uniquindio.social_reports.model.enums.UserStatus;
 import co.edu.uniquindio.social_reports.model.vo.ValidationCode;
 import co.edu.uniquindio.social_reports.repositories.UserRepository;
@@ -43,6 +44,14 @@ public class UserServiceImpl implements UserService {
 
         User user = dtoToEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.password()));
+        user.setRole(Role.CLIENT);
+        user.setStatus(UserStatus.INACTIVE);
+        ValidationCode validationCode = ValidationCode
+                .builder()
+                .code(generateCode())
+                .date(LocalDateTime.now())
+                .build();
+        user.setValidationCode(validationCode);
         user = userRepository.save(user);
 
         sendRegistrationCode(user.getEmail(), user.getValidationCode().getCode());
@@ -122,6 +131,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void resendActivationCode(String email) throws Exception {
+        User user = getUserByEmail(email);
+        if(user.getStatus() == UserStatus.ACTIVE) throw new UserAlreadyActiveException("El usuario ya esta activo");
+        ValidationCode validationCode = ValidationCode
+                .builder()
+                .code(generateCode())
+                .date(LocalDateTime.now())
+                .build();
+        user.setValidationCode(validationCode);
+        user = userRepository.save(user);
+
+        String subject = "Resend activation code";
+        emailService.sendEmail(new EmailDTO(subject, validationCode.getCode(), email));
+
+
+    }
+
+    @Override
     public List<UserInfoDTO> getAllUsers() throws Exception {
         return userRepository.findAll()
                 .stream()
@@ -149,6 +176,7 @@ public class UserServiceImpl implements UserService {
             }else throw new WrongCodeException("El codigo no es correcto");
         }
     }
+
 
     private User getEmailByEmail(String email) throws EmailNotExistsException {
         Optional<User> optionalUser = userRepository.findUserByEmail(email);

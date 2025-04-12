@@ -16,4 +16,5 @@ public interface UserService {
     TokenDTO logIn(LogInDTO logInDTO) throws Exception;
     List<UserInfoDTO> getAllUsers() throws Exception;
     void activateUser(String email, String code) throws Exception;
+    void resendActivationCode(String email) throws Exception;
 }
