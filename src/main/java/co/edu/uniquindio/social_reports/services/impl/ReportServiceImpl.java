@@ -1,15 +1,21 @@
 package co.edu.uniquindio.social_reports.services.impl;
 
 import co.edu.uniquindio.social_reports.dtos.report.*;
-import co.edu.uniquindio.social_reports.exceptions.user.ReportNotBelongToUserException;
+import co.edu.uniquindio.social_reports.exceptions.Report.ReportDeletedException;
+import co.edu.uniquindio.social_reports.exceptions.Report.ReportNotBelongToUserException;
+import co.edu.uniquindio.social_reports.exceptions.Report.ReportNotExistException;
+import co.edu.uniquindio.social_reports.exceptions.user.*;
 import co.edu.uniquindio.social_reports.model.entities.Category;
+import co.edu.uniquindio.social_reports.model.entities.Comment;
 import co.edu.uniquindio.social_reports.model.entities.Report;
 import co.edu.uniquindio.social_reports.model.entities.User;
 import co.edu.uniquindio.social_reports.model.enums.City;
 import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
+import co.edu.uniquindio.social_reports.model.enums.UserStatus;
 import co.edu.uniquindio.social_reports.model.vo.Location;
 import co.edu.uniquindio.social_reports.model.vo.ReportHistory;
 import co.edu.uniquindio.social_reports.repositories.CategoryRepository;
+import co.edu.uniquindio.social_reports.repositories.CommentRepository;
 import co.edu.uniquindio.social_reports.repositories.ReportRepository;
 import co.edu.uniquindio.social_reports.repositories.UserRepository;
 import co.edu.uniquindio.social_reports.services.interfaces.ImageService;
@@ -20,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -30,6 +37,7 @@ public class ReportServiceImpl implements ReportService {
 
     private final ReportRepository reportRepository;
     private final CategoryRepository categoryRepository;
+    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final ImageService imageService;
 
@@ -69,6 +77,10 @@ public class ReportServiceImpl implements ReportService {
 
         if(!Objects.equals(report.getClientId(), new ObjectId(reportDTO.userId()))) {
             throw new ReportNotBelongToUserException("The report does not belong to the user");
+        }
+
+        if (report.getCurrentStatus() == ReportStatus.DELETED){
+            throw new ReportDeletedException("This report has been deleted and cannot be edited.");
         }
 
         Category category = categoryRepository.findCategoryByName(reportDTO.categoryName())
@@ -112,8 +124,24 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public void deleteReport(String id) throws Exception {
-        //TODO
+    public void deleteReport(String id, DeleteReportDTO deleteReportDTO) throws Exception {
+
+        Report report = reportRepository.findById(new ObjectId(id))
+                .orElseThrow(()-> new RuntimeException("Report not found"));
+
+        report.setCurrentStatus(ReportStatus.DELETED);
+        ReportHistory reportHistory = ReportHistory.builder()
+                .status(ReportStatus.DELETED)
+                .date(LocalDateTime.now())
+                .clientId(new ObjectId(deleteReportDTO.userID()))
+                .comments("Report deleted")
+                .build();
+
+        List<ReportHistory> reportHistories = report.getHistory();
+        reportHistories.add(reportHistory);
+        report.setHistory(reportHistories);
+
+        reportRepository.save(report);
     }
 
     @Override
@@ -140,12 +168,46 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void addCommentToReport(String id, CommentDTO commentDTO) throws Exception {
-        //TODO
+
+        Report report = reportRepository.findById(new ObjectId(id))
+                .orElseThrow(()-> new ReportNotExistException("Report not found"));
+
+        if(report.getCurrentStatus() == ReportStatus.DELETED){
+            throw new ReportDeletedException("This report has been deleted");
+        }
+
+        if(!userRepository.existsById(new ObjectId(commentDTO.userId()))){
+            throw new UserNotExistsException("User not found");
+        }
+
+        Comment comment = Comment.builder()
+                .reportId(new ObjectId(id))
+                .message(commentDTO.comment())
+                .date(LocalDateTime.now())
+                .clientId(new ObjectId(commentDTO.userId()))
+                .build();
+
+        commentRepository.save(comment);
     }
 
     @Override
     public void setAsImportant(String id, String userId) throws Exception {
-        //TODO
+        Report report = reportRepository.findById(new ObjectId(id))
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        User user = userRepository.findById(new ObjectId(userId))
+                .orElseThrow(()-> new UserNotExistsException("User not found"));
+
+        if(user.getStatus() == UserStatus.INACTIVE || user.getStatus() == UserStatus.DELETED){
+            throw new UserNotActiveException("User without activating account");
+        }
+
+        if(report.getCurrentStatus() == ReportStatus.DELETED){
+            throw new ReportDeletedException("This report has been deleted and cannot be edited.");
+        }
+
+        report.setImportanceCount(report.getImportanceCount()+1);
+        reportRepository.save(report);
     }
 
     @Override
@@ -198,17 +260,20 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<City> getCities() throws Exception {
-        return List.of();
+        return Arrays.asList(City.values());
     }
 
     @Override
     public List<ReportStatus> getStatuses() throws Exception {
-        return List.of();
+        return Arrays.asList(ReportStatus.values());
     }
 
     @Override
     public List<CategoryDTO> getCategories() throws Exception {
-        return List.of();
+        return categoryRepository.findAll()
+                .stream()
+                .map(category -> new CategoryDTO(category.getName()))
+                .toList();
     }
 
     @Override

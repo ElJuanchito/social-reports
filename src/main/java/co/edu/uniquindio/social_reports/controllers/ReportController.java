@@ -51,8 +51,8 @@ public class ReportController {
 
     @Operation(summary = "Eliminar reporte", description = "Elimina un reporte de la base de datos mediante el id del reporte")
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageDTO<String>> deleteReport(@PathVariable String id) throws Exception {
-        reportService.deleteReport(id);
+    public ResponseEntity<MessageDTO<String>> deleteReport(@PathVariable String id, @RequestBody DeleteReportDTO dto) throws Exception {
+        reportService.deleteReport(id, dto);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report deleted successfully"));
     }
 
