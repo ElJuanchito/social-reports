@@ -39,9 +39,13 @@ public class ReportController {
     }
 
     @Operation(summary = "Editar reporte", description = "Edita un reporte con los datos proporcionados en el cuerto de la peticion")
-    @PutMapping("/{id}")
-    public ResponseEntity<MessageDTO<String>> updateReport(@PathVariable String id, @Valid @RequestBody UpdateReportDTO reportDTO) throws Exception {
-        reportService.updateReport(id, reportDTO);
+    @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageDTO<String>> updateReport(
+            @PathVariable String id,
+            @RequestPart(value = "data") @Parameter(schema = @Schema(type = "string", format = "binary")) final UpdateReportDTO updateReportDTO,
+            @RequestPart(value = "image", required = false) final MultipartFile[] images
+    ) throws Exception {
+        reportService.updateReport(id, updateReportDTO, images);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report updated successfully"));
     }
 

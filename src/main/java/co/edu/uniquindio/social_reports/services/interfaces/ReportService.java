@@ -11,7 +11,7 @@ import java.util.List;
 public interface ReportService {
 
     void createReport(CreateReportDTO reportDTO, MultipartFile[] images) throws Exception;
-    void updateReport(String id, UpdateReportDTO reportDTO) throws Exception;
+    void updateReport(String id, UpdateReportDTO reportDTO, MultipartFile[] images) throws Exception;
     void deleteReport(String id) throws Exception;
     ReportInfoDTO getReportInfo(String id) throws Exception;
     void addCommentToReport(String id, CommentDTO commentDTO) throws Exception;

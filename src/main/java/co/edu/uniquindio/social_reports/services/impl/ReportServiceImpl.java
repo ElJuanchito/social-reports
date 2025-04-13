@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -63,6 +62,35 @@ public class ReportServiceImpl implements ReportService {
         reportRepository.save(report);
     }
 
+    @Override
+    public void updateReport(String id, UpdateReportDTO reportDTO, MultipartFile[] images) throws Exception {
+        Report report = reportRepository.findById(new ObjectId(id))
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        if(!Objects.equals(report.getClientId(), new ObjectId(reportDTO.userId()))) {
+            throw new ReportNotBelongToUserException("The report does not belong to the user");
+        }
+
+        Category category = categoryRepository.findCategoryByName(reportDTO.categoryName())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        report.setTitle(reportDTO.title());
+        report.setDescription(reportDTO.description());
+        report.setLocation(locationDtoToEntity(reportDTO.location()));
+        report.setCategoryId(category.getId());
+
+        List<String> urls = new ArrayList<> ();
+        if(images != null && images.length > 0) {
+            for (MultipartFile image : images) {
+                Map uploadResult = imageService.uploadImage(image);
+                String imageUrl = (String) uploadResult.get("secure_url");
+                urls.add(imageUrl);
+            }
+        }
+        report.setImages(urls);
+        reportRepository.save(report);
+    }
+
     private Report dtoToEntity(CreateReportDTO reportDTO) {
 
         Category category = categoryRepository.findCategoryByName(reportDTO.categoryName())
@@ -81,12 +109,6 @@ public class ReportServiceImpl implements ReportService {
                 .latitude(locationDTO.latitude())
                 .longitude(locationDTO.longitude())
                 .build();
-    }
-
-
-    @Override
-    public void updateReport(String id, UpdateReportDTO reportDTO) throws Exception {
-        //TODO
     }
 
     @Override

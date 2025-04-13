@@ -4,10 +4,10 @@ import co.edu.uniquindio.social_reports.model.entities.Category;
 import jakarta.validation.constraints.NotBlank;
 
 public record UpdateReportDTO(
-        Category category,
+        String title,
+        String categoryName,
         String description,
         LocationDTO location,
-        @NotBlank String imageUrl,
         @NotBlank String userId
 ) {
 }
