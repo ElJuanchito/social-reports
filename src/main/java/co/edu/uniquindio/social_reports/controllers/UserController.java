@@ -45,18 +45,4 @@ public class UserController {
         UserInfoDTO userIfo = userService.getUserInfo(id);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, userIfo));
     }
-
-    @Operation(summary = "Enviar email de recuperacion de contrasena", description = "Envia al usuario un email que contiene el codigo para la recuperacion de la contrasena")
-    @PostMapping("/password/recover")
-    public ResponseEntity<MessageDTO<String>> sendPasswordResetCode(@Email @RequestParam String email) throws Exception {
-        userService.sendPasswordResetCode(email);
-        return ResponseEntity.status(202).body(new MessageDTO<>(false, "Password reset code has sent successfully"));
-    }
-
-    @Operation(summary = "Cambiar la contrasena del usuario", description = "modifica la contrasena de usuario")
-    @PutMapping("/password")
-    public ResponseEntity<MessageDTO<String>> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) throws Exception {
-        userService.changePassword(changePasswordDTO);
-        return ResponseEntity.status(200).body(new MessageDTO<>(false, "Password changed successfully"));
-    }
 }

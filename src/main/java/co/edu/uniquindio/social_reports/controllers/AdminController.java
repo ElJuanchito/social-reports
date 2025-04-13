@@ -9,6 +9,7 @@ import co.edu.uniquindio.social_reports.model.entities.Category;
 import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import co.edu.uniquindio.social_reports.services.interfaces.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @Tag(name = "admin")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
     private final ReportService reportService;
