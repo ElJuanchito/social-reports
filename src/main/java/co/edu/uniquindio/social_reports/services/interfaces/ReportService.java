@@ -17,10 +17,10 @@ public interface ReportService {
     void addCommentToReport(String id, CommentDTO commentDTO) throws Exception;
     void setAsImportant(String id, String userId) throws Exception;
     void changeStatus(ChangeStatusDTO changeStatusDTO) throws Exception;
-    List<ReportInfoDTO> getReportsInfoByCategory(Category category) throws Exception;
-    void checkReport(String id) throws Exception;
+    List<ReportInfoDTO> getReportsInfoByCategory(String categoryName) throws Exception;
+    void checkReport(ChangeStatusDTO dto) throws Exception;
     void refuseReport(RefuseReportDTO reportDTO) throws Exception;
-    void setAsResolved(String id) throws Exception;
+    void setAsResolved(ChangeStatusDTO dto) throws Exception;
     void createViewReport(ViewReportDTO dto) throws Exception; //TODO Falta por completar
     List<City> getCities() throws Exception;
     List<ReportStatus> getStatuses() throws Exception;

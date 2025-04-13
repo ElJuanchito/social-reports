@@ -219,6 +219,10 @@ public class ReportServiceImpl implements ReportService {
             throw new ReportNotBelongToUserException("The report does not belong to the user");
         }
 
+        if(report.getCurrentStatus() == ReportStatus.DELETED){
+            throw new ReportDeletedException("This report has been deleted and cannot be edited.");
+        }
+
         report.setCurrentStatus(ReportStatus.RESOLVED);
         ReportHistory reportHistory = ReportHistory.builder()
                 .status(ReportStatus.RESOLVED)
@@ -234,23 +238,100 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ReportInfoDTO> getReportsInfoByCategory(Category category) throws Exception {
-        return List.of();
+    public List<ReportInfoDTO> getReportsInfoByCategory(String categoryName) throws Exception {
+        Category category = categoryRepository.findCategoryByName(categoryName)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        List<Report> reports = reportRepository.findAllByCategoryId(category.getId());
+        return reports
+                .stream()
+                .map(this::ReportToReportInfoDTO)
+                .toList();
+    }
+
+    private ReportInfoDTO ReportToReportInfoDTO(Report report) {
+
+        Category category = categoryRepository.findById(report.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        return new ReportInfoDTO(
+                report.getTitle(),
+                category,
+                report.getDescription(),
+                report.getLocation(),
+                report.getImages(),
+                report.getClientId().toString(),
+                report.getCurrentStatus());
     }
 
     @Override
-    public void checkReport(String id) throws Exception {
+    public void checkReport(ChangeStatusDTO dto) throws Exception {
+        Report report = reportRepository.findById(new ObjectId(dto.reportId()))
+                .orElseThrow(() -> new RuntimeException("Report not found"));
 
+        if(report.getCurrentStatus() == ReportStatus.DELETED){
+            throw new ReportDeletedException("This report has been deleted and cannot be edited.");
+        }
+
+        report.setCurrentStatus(ReportStatus.VERIFIED);
+        ReportHistory reportHistory = ReportHistory.builder()
+                .status(ReportStatus.VERIFIED)
+                .date(LocalDateTime.now())
+                .clientId(new ObjectId(dto.userId()))
+                .comments("Report verified")
+                .build();
+        List<ReportHistory> reportHistories = report.getHistory();
+        reportHistories.add(reportHistory);
+        report.setHistory(reportHistories);
+
+        reportRepository.save(report);
     }
 
     @Override
     public void refuseReport(RefuseReportDTO reportDTO) throws Exception {
 
+        Report report = reportRepository.findById(new ObjectId(reportDTO.reportId()))
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        if(report.getCurrentStatus() == ReportStatus.DELETED){
+            throw new ReportDeletedException("This report has been deleted and cannot be edited.");
+        }
+
+        report.setCurrentStatus(ReportStatus.REFUSED);
+        ReportHistory reportHistory = ReportHistory.builder()
+                .status(ReportStatus.REFUSED)
+                .date(LocalDateTime.now())
+                .clientId(new ObjectId(reportDTO.userId()))
+                .comments(reportDTO.refuseMotive())
+                .build();
+        List<ReportHistory> reportHistories = report.getHistory();
+        reportHistories.add(reportHistory);
+        report.setHistory(reportHistories);
+
+        reportRepository.save(report);
     }
 
     @Override
-    public void setAsResolved(String id) throws Exception {
+    public void setAsResolved(ChangeStatusDTO dto) throws Exception {
+        Report report = reportRepository.findById(new ObjectId(dto.reportId()))
+                .orElseThrow(() -> new RuntimeException("Report not found"));
 
+        if(report.getCurrentStatus() == ReportStatus.DELETED){
+            throw new ReportDeletedException("This report has been deleted and cannot be edited.");
+        }
+
+        report.setCurrentStatus(ReportStatus.RESOLVED);
+
+        ReportHistory reportHistory = ReportHistory.builder()
+                .status(ReportStatus.RESOLVED)
+                .date(LocalDateTime.now())
+                .clientId(new ObjectId(dto.userId()))
+                .comments(dto.reason())
+                .build();
+
+        List<ReportHistory> reportHistories = report.getHistory();
+        reportHistories.add(reportHistory);
+        report.setHistory(reportHistories);
+        reportRepository.save(report);
     }
 
     @Override

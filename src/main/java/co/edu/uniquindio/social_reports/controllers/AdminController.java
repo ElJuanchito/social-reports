@@ -1,10 +1,7 @@
 package co.edu.uniquindio.social_reports.controllers;
 
 import co.edu.uniquindio.social_reports.dtos.reponses.MessageDTO;
-import co.edu.uniquindio.social_reports.dtos.report.CategoryDTO;
-import co.edu.uniquindio.social_reports.dtos.report.RefuseReportDTO;
-import co.edu.uniquindio.social_reports.dtos.report.ReportInfoDTO;
-import co.edu.uniquindio.social_reports.dtos.report.ViewReportDTO;
+import co.edu.uniquindio.social_reports.dtos.report.*;
 import co.edu.uniquindio.social_reports.dtos.user.UserInfoDTO;
 import co.edu.uniquindio.social_reports.model.entities.Category;
 import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
@@ -29,15 +26,15 @@ public class AdminController {
 
     @Operation(summary = "Obtener reportes por categoria", description = "Obtinene todos los reportes de una cateoria")
     @GetMapping("/report")
-    public ResponseEntity<MessageDTO<List<ReportInfoDTO>>> getReportsByCategory(@RequestParam Category category) throws Exception {
-        List<ReportInfoDTO> reportsInfoByCategory = reportService.getReportsInfoByCategory(category);
+    public ResponseEntity<MessageDTO<List<ReportInfoDTO>>> getReportsByCategory(@RequestParam String categoryName) throws Exception {
+        List<ReportInfoDTO> reportsInfoByCategory = reportService.getReportsInfoByCategory(categoryName);
         return ResponseEntity.ok(new MessageDTO<>(false, reportsInfoByCategory));
     }
 
     @Operation(summary = "Verificar reporte", description = "Marca un reporte como verificado por un admin")
-    @PutMapping("/check/{id}")
-    public ResponseEntity<MessageDTO<String>> checkReport(@PathVariable String id) throws Exception {
-        reportService.checkReport(id);
+    @PutMapping("/checkReport")
+    public ResponseEntity<MessageDTO<String>> checkReport(@RequestBody ChangeStatusDTO dto) throws Exception {
+        reportService.checkReport(dto);
         return ResponseEntity.ok(new MessageDTO<>(false, "Report check successful"));
     }
 
@@ -49,9 +46,9 @@ public class AdminController {
     }
 
     @Operation(summary = "Marcar como resuelto", description = "El admin marca un reporte como resuelto")
-    @PostMapping("/{id}/resolved")
-    public ResponseEntity<MessageDTO<String>> setAsResolved(@PathVariable String id) throws Exception {
-        reportService.setAsResolved(id);
+    @PostMapping("/resolvedReport")
+    public ResponseEntity<MessageDTO<String>> setAsResolved(@RequestBody ChangeStatusDTO dto) throws Exception {
+        reportService.setAsResolved(dto);
         return ResponseEntity.ok(new MessageDTO<>(false, "Report resolved successfuly"));
     }
 
