@@ -18,17 +18,18 @@ public class ImageServiceImpl implements ImageService {
 
     public ImageServiceImpl() {
         Map<String, String> config = new HashMap<>();
-        config.put("cloud_name", "daljpqz0i");
-        config.put("api_key", "273622847594172");
-        config.put("api_secret", "WTV3M");
+        config.put("cloud_name", "dafksy5tq");
+        config.put("api_key", "929237532275326");
+        config.put("api_secret", "luhYq6qtKsbhFZhxYS4vWkWxTsc");
 
         cloudinary = new Cloudinary(config);
     }
 
     @Override
-    public Map uploadImage(MultipartFile image) throws Exception {
+    public String uploadImage(MultipartFile image) throws Exception {
         File file = transform(image);
-        return cloudinary.uploader().upload(file, ObjectUtils.asMap("folder", "reportes"));
+        Map map = cloudinary.uploader().upload(file, ObjectUtils.asMap("folder", "reportes"));
+        return (String) map.get("url");
     }
 
     @Override

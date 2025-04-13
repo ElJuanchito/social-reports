@@ -48,7 +48,7 @@ public class SecurityConfig {
                         // Solo ADMIN puede acceder
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
-                        // Cualquier usuario autenticado con rol (ADMIN o USER, por ejemplo)
+                        // Cualquier usuario autenticado con rol (ADMIN o CLIENT, por ejemplo)
                         .requestMatchers(
                                 "/api/users/**",
                                 "/api/images/**",
