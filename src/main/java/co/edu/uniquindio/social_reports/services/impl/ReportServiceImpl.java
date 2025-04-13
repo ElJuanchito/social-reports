@@ -4,12 +4,14 @@ import co.edu.uniquindio.social_reports.dtos.report.*;
 import co.edu.uniquindio.social_reports.exceptions.user.ReportNotBelongToUserException;
 import co.edu.uniquindio.social_reports.model.entities.Category;
 import co.edu.uniquindio.social_reports.model.entities.Report;
+import co.edu.uniquindio.social_reports.model.entities.User;
 import co.edu.uniquindio.social_reports.model.enums.City;
 import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
 import co.edu.uniquindio.social_reports.model.vo.Location;
 import co.edu.uniquindio.social_reports.model.vo.ReportHistory;
 import co.edu.uniquindio.social_reports.repositories.CategoryRepository;
 import co.edu.uniquindio.social_reports.repositories.ReportRepository;
+import co.edu.uniquindio.social_reports.repositories.UserRepository;
 import co.edu.uniquindio.social_reports.services.interfaces.ImageService;
 import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class ReportServiceImpl implements ReportService {
 
     private final ReportRepository reportRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
     private final ImageService imageService;
 
     @Override
@@ -93,8 +96,24 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public ReportInfoDTO getReportInfo(String id) throws Exception {
-        return null;
-        //TODO
+        Report report = reportRepository.findById(new ObjectId(id))
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        Category category = categoryRepository.findById(report.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        User user = userRepository.findById(report.getClientId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new ReportInfoDTO(
+                report.getTitle(),
+                category,
+                report.getDescription(),
+                report.getLocation(),
+                report.getImages(),
+                report.getClientId().toString(),
+                report.getCurrentStatus()
+        );
     }
 
     @Override
