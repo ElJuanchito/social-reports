@@ -4,18 +4,19 @@ import co.edu.uniquindio.social_reports.dtos.report.*;
 import co.edu.uniquindio.social_reports.model.entities.Category;
 import co.edu.uniquindio.social_reports.model.enums.City;
 import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface ReportService {
 
-    void createReport(CreateReportDTO reportDTO) throws Exception;
+    void createReport(CreateReportDTO reportDTO, MultipartFile[] images) throws Exception;
     void updateReport(String id, UpdateReportDTO reportDTO) throws Exception;
     void deleteReport(String id) throws Exception;
     ReportInfoDTO getReportInfo(String id) throws Exception;
     void addCommentToReport(String id, CommentDTO commentDTO) throws Exception;
     void setAsImportant(String id, String userId) throws Exception;
-    void changeStatus(String id, ChangeStatusDTO changeStatusDTO) throws Exception;
+    void changeStatus(ChangeStatusDTO changeStatusDTO) throws Exception;
     List<ReportInfoDTO> getReportsInfoByCategory(Category category) throws Exception;
     void checkReport(String id) throws Exception;
     void refuseReport(RefuseReportDTO reportDTO) throws Exception;
@@ -24,4 +25,5 @@ public interface ReportService {
     List<City> getCities() throws Exception;
     List<ReportStatus> getStatuses() throws Exception;
     List<CategoryDTO> getCategories() throws Exception;
+    void createCategory(CategoryDTO categoryDTO) throws Exception;
 }

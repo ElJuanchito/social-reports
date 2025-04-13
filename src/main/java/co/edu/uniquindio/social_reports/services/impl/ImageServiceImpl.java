@@ -18,9 +18,9 @@ public class ImageServiceImpl implements ImageService {
 
     public ImageServiceImpl() {
         Map<String, String> config = new HashMap<>();
-        config.put("cloud_name", "daljpqz0i");
-        config.put("api_key", "273622847594172");
-        config.put("api_secret", "WTV3M");
+        config.put("cloud_name", "dnuioojog");
+        config.put("api_key", "281798367627178");
+        config.put("api_secret", "sReLdKEhVbSZ4ghl_AvigV51T7c");
 
         cloudinary = new Cloudinary(config);
     }

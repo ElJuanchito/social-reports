@@ -42,7 +42,7 @@ public class AuthController {
     }
 
     @Operation(summary = "Reenviar codigo de activacion", description = "Reenvia el codigo de activacion al correo del usuario")
-    @PostMapping("/{email}/resendActivationCode")
+    @PutMapping("/{email}/resendActivationCode")
     public ResponseEntity<MessageDTO<String>> resendActivationCode(@PathVariable String email) throws Exception {
         userService.resendActivationCode(email);
         return ResponseEntity.ok(new MessageDTO<>(false, "Activation code resent successfully"));

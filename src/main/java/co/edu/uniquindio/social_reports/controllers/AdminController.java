@@ -1,6 +1,7 @@
 package co.edu.uniquindio.social_reports.controllers;
 
 import co.edu.uniquindio.social_reports.dtos.reponses.MessageDTO;
+import co.edu.uniquindio.social_reports.dtos.report.CategoryDTO;
 import co.edu.uniquindio.social_reports.dtos.report.RefuseReportDTO;
 import co.edu.uniquindio.social_reports.dtos.report.ReportInfoDTO;
 import co.edu.uniquindio.social_reports.dtos.report.ViewReportDTO;
@@ -66,5 +67,12 @@ public class AdminController {
     public ResponseEntity<MessageDTO<String>> generateViewReport(@Valid @RequestBody ViewReportDTO dto) throws Exception {
         reportService.createViewReport(dto);
         return ResponseEntity.ok(new MessageDTO<>(false, "View report genrated successfully"));
+    }
+
+    @Operation(summary = "Crear categoria", description = "permitir crear una nueva categoria")
+    @PostMapping("/category")
+    public ResponseEntity<MessageDTO<String>> createCategory(@RequestBody CategoryDTO dto) throws Exception {
+        reportService.createCategory(dto);
+        return ResponseEntity.ok(new MessageDTO<>(false, "Category created successfully"));
     }
 }

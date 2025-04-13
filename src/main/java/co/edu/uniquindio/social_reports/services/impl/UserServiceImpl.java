@@ -125,6 +125,7 @@ public class UserServiceImpl implements UserService {
         User user = getUserByEmail(logInDTO.email());
 
         if(!passwordEncoder.matches(logInDTO.password(), user.getPassword())) throw new WrongPasswordException("La contrasena es incorrecta");
+        if(user.getStatus()!= UserStatus.ACTIVE) throw new UserNotActiveException("El usuario no esta activo");
 
         String token = jwtUtils.generateToken(user.getId().toString(), createClaims(user));
         return new TokenDTO(token);
@@ -144,8 +145,6 @@ public class UserServiceImpl implements UserService {
 
         String subject = "Resend activation code";
         emailService.sendEmail(new EmailDTO(subject, validationCode.getCode(), email));
-
-
     }
 
     @Override

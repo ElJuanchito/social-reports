@@ -6,12 +6,16 @@ import co.edu.uniquindio.social_reports.model.enums.City;
 import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
 import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,9 +29,12 @@ public class ReportController {
     private final ReportService reportService;
 
     @Operation(summary = "Crear reporte", description = "Crea un reporte con los datos necesarios y lo publica en la plataforma")
-    @PostMapping
-    public ResponseEntity<MessageDTO<String>> createReport(@Valid @RequestBody CreateReportDTO reportDTO) throws Exception {
-        reportService.createReport(reportDTO);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageDTO<String>> createReport(
+            @RequestPart(value = "data") @Parameter(schema = @Schema(type = "string", format = "binary")) final CreateReportDTO reportDTO,
+            @RequestPart(value = "image", required = false) final MultipartFile[] images
+    ) throws Exception {
+        reportService.createReport(reportDTO, images);
         return ResponseEntity.status(201).body(new MessageDTO<>(false, "Report created successfully"));
     }
 
@@ -66,10 +73,10 @@ public class ReportController {
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "The report has been marked as important"));
     }
 
-    @Operation(summary = "Cambiar estado del reporte", description = "Cambia el estado de los reportes a resuelto u otro, mediante su id")
-    @PostMapping("/{id}/status")
-    public ResponseEntity<MessageDTO<String>> changeStatus(@PathVariable String id, @RequestBody ChangeStatusDTO statusDTO) throws Exception {
-        reportService.changeStatus(id, statusDTO);
+    @Operation(summary = "Cambiar estado del reporte", description = "Cambia el estado de los reportes a resuelto mediante su id")
+    @PostMapping("/changeStatus")
+    public ResponseEntity<MessageDTO<String>> changeStatus( @RequestBody ChangeStatusDTO statusDTO) throws Exception {
+        reportService.changeStatus(statusDTO);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report status changed successfully"));
     }
 
