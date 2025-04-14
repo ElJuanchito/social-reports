@@ -1,15 +1,17 @@
 package co.edu.uniquindio.social_reports.dtos.report;
 
-import co.edu.uniquindio.social_reports.model.entities.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
+
 public record CreateReportDTO(
         @NotBlank String title,
-        @NotNull Category category,
+        @NotNull String categoryName,
         @NotBlank String description,
         @NotNull LocationDTO location,
-        @NotBlank String imageUrl,
+        @NotBlank List<String> imageUrl,
         @NotBlank String userId
 ) {
 }

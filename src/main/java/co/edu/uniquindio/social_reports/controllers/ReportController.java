@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,22 +27,22 @@ public class ReportController {
 
     @Operation(summary = "Crear reporte", description = "Crea un reporte con los datos necesarios y lo publica en la plataforma")
     @PostMapping
-    public ResponseEntity<MessageDTO<String>> createReport(@Valid @RequestBody CreateReportDTO reportDTO) throws Exception {
+    public ResponseEntity<MessageDTO<String>> createReport(@RequestBody CreateReportDTO reportDTO) throws Exception {
         reportService.createReport(reportDTO);
         return ResponseEntity.status(201).body(new MessageDTO<>(false, "Report created successfully"));
     }
 
     @Operation(summary = "Editar reporte", description = "Edita un reporte con los datos proporcionados en el cuerto de la peticion")
-    @PutMapping("/{id}")
-    public ResponseEntity<MessageDTO<String>> updateReport(@PathVariable String id, @Valid @RequestBody UpdateReportDTO reportDTO) throws Exception {
-        reportService.updateReport(id, reportDTO);
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<MessageDTO<String>> updateReport(@PathVariable String id,UpdateReportDTO updateReportDTO) throws Exception {
+        reportService.updateReport(id, updateReportDTO);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report updated successfully"));
     }
 
     @Operation(summary = "Eliminar reporte", description = "Elimina un reporte de la base de datos mediante el id del reporte")
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageDTO<String>> deleteReport(@PathVariable String id) throws Exception {
-        reportService.deleteReport(id);
+    public ResponseEntity<MessageDTO<String>> deleteReport(@PathVariable String id, @RequestBody DeleteReportDTO dto) throws Exception {
+        reportService.deleteReport(id, dto);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report deleted successfully"));
     }
 
@@ -66,10 +67,10 @@ public class ReportController {
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "The report has been marked as important"));
     }
 
-    @Operation(summary = "Cambiar estado del reporte", description = "Cambia el estado de los reportes a resuelto u otro, mediante su id")
-    @PostMapping("/{id}/status")
-    public ResponseEntity<MessageDTO<String>> changeStatus(@PathVariable String id, @RequestBody ChangeStatusDTO statusDTO) throws Exception {
-        reportService.changeStatus(id, statusDTO);
+    @Operation(summary = "Cambiar estado del reporte", description = "Cambia el estado de los reportes a resuelto mediante su id")
+    @PostMapping("/changeStatus")
+    public ResponseEntity<MessageDTO<String>> changeStatus( @RequestBody ChangeStatusDTO statusDTO) throws Exception {
+        reportService.changeStatus(statusDTO);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report status changed successfully"));
     }
 
@@ -94,7 +95,12 @@ public class ReportController {
         return ResponseEntity.status(200).body(new MessageDTO<>(false, categories));
     }
 
-
-
+    @Operation(summary = "Obtiener comentarios de reporte", description = "Se obtiene la lista con todos los comentarios de un reporte")
+    @GetMapping("/getAllComments/{reportId}")
+    @ResponseStatus(HttpStatus.OK)
+    public MessageDTO<List<CommentDTO>> getAllCommentsFromReport(@PathVariable String reportId) throws Exception {
+        List<CommentDTO> comments = reportService.getAllCommentsFromReport(reportId);
+        return new MessageDTO<>(false, comments);
+    }
 
 }

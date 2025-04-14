@@ -7,6 +7,6 @@ import jakarta.validation.constraints.NotNull;
 public record ChangeStatusDTO(
         @NotBlank String userId,
         @NotBlank String reason,
-        @NotNull ReportStatus status
+        @NotBlank String reportId
 ) {
 }
