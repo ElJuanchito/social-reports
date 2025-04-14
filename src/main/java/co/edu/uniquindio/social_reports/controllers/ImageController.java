@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,15 @@ public class ImageController {
     private final ImageService imageService;
 
     @Operation(summary = "Subir imagen", description = "Permite subir una imagen a la base de datos")
-    @PostMapping("/upload")
-    public ResponseEntity<MessageDTO<String>> uploadImage(@RequestParam("file") MultipartFile file) throws Exception {
+    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageDTO<String>> uploadImage(
+            @RequestPart("file") MultipartFile file
+    ) throws Exception {
         String url = imageService.uploadImage(file);
         return ResponseEntity.ok(new MessageDTO<>(false, url));
     }
 
-    @Operation(summary = "Subir imagen", description = "Permite subir una imagen a la base de datos")
+    @Operation(summary = "eliminar imagen", description = "Permite eliminar una imagen a la base de datos")
     @PostMapping("/delete")
     public ResponseEntity<MessageDTO<Map>> deleteImage(@RequestParam String id) throws Exception {
         Map map = imageService.deleteImage(id);
