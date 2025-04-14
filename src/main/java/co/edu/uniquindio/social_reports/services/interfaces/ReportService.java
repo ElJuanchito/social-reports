@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface ReportService {
 
-    void createReport(CreateReportDTO reportDTO, MultipartFile[] images) throws Exception;
-    void updateReport(String id, UpdateReportDTO reportDTO, MultipartFile[] images) throws Exception;
+    void createReport(CreateReportDTO reportDTO) throws Exception;
+    void updateReport(String id, UpdateReportDTO reportDTO) throws Exception;
     void deleteReport(String id, DeleteReportDTO dto) throws Exception;
     ReportInfoDTO getReportInfo(String id) throws Exception;
     void addCommentToReport(String id, CommentDTO commentDTO) throws Exception;
@@ -26,4 +26,5 @@ public interface ReportService {
     List<ReportStatus> getStatuses() throws Exception;
     List<CategoryDTO> getCategories() throws Exception;
     void createCategory(CategoryDTO categoryDTO) throws Exception;
+    List<CommentDTO> getAllCommentsFromReport(String reportId) throws Exception;
 }

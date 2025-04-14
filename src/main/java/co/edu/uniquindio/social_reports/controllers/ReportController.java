@@ -6,16 +6,13 @@ import co.edu.uniquindio.social_reports.model.enums.City;
 import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
 import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,23 +26,16 @@ public class ReportController {
     private final ReportService reportService;
 
     @Operation(summary = "Crear reporte", description = "Crea un reporte con los datos necesarios y lo publica en la plataforma")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MessageDTO<String>> createReport(
-            @RequestPart(value = "data") @Parameter(schema = @Schema(type = "string", format = "binary")) final CreateReportDTO reportDTO,
-            @RequestPart(value = "image", required = false) final MultipartFile[] images
-    ) throws Exception {
-        reportService.createReport(reportDTO, images);
+    @PostMapping
+    public ResponseEntity<MessageDTO<String>> createReport(@RequestBody CreateReportDTO reportDTO) throws Exception {
+        reportService.createReport(reportDTO);
         return ResponseEntity.status(201).body(new MessageDTO<>(false, "Report created successfully"));
     }
 
     @Operation(summary = "Editar reporte", description = "Edita un reporte con los datos proporcionados en el cuerto de la peticion")
-    @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MessageDTO<String>> updateReport(
-            @PathVariable String id,
-            @RequestPart(value = "data") @Parameter(schema = @Schema(type = "string", format = "binary")) final UpdateReportDTO updateReportDTO,
-            @RequestPart(value = "image", required = false) final MultipartFile[] images
-    ) throws Exception {
-        reportService.updateReport(id, updateReportDTO, images);
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<MessageDTO<String>> updateReport(@PathVariable String id,UpdateReportDTO updateReportDTO) throws Exception {
+        reportService.updateReport(id, updateReportDTO);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report updated successfully"));
     }
 
@@ -105,7 +95,12 @@ public class ReportController {
         return ResponseEntity.status(200).body(new MessageDTO<>(false, categories));
     }
 
-
-
+    @Operation(summary = "Obtiener comentarios de reporte", description = "Se obtiene la lista con todos los comentarios de un reporte")
+    @GetMapping("/getAllComments/{reportId}")
+    @ResponseStatus(HttpStatus.OK)
+    public MessageDTO<List<CommentDTO>> getAllCommentsFromReport(@PathVariable String reportId) throws Exception {
+        List<CommentDTO> comments = reportService.getAllCommentsFromReport(reportId);
+        return new MessageDTO<>(false, comments);
+    }
 
 }

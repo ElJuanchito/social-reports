@@ -1,9 +1,8 @@
 package co.edu.uniquindio.social_reports.services.impl;
 
+import co.edu.uniquindio.social_reports.dtos.email.EmailDTO;
 import co.edu.uniquindio.social_reports.dtos.report.*;
-import co.edu.uniquindio.social_reports.exceptions.Report.ReportDeletedException;
-import co.edu.uniquindio.social_reports.exceptions.Report.ReportNotBelongToUserException;
-import co.edu.uniquindio.social_reports.exceptions.Report.ReportNotExistException;
+import co.edu.uniquindio.social_reports.exceptions.Report.*;
 import co.edu.uniquindio.social_reports.exceptions.user.*;
 import co.edu.uniquindio.social_reports.model.entities.Category;
 import co.edu.uniquindio.social_reports.model.entities.Comment;
@@ -11,6 +10,7 @@ import co.edu.uniquindio.social_reports.model.entities.Report;
 import co.edu.uniquindio.social_reports.model.entities.User;
 import co.edu.uniquindio.social_reports.model.enums.City;
 import co.edu.uniquindio.social_reports.model.enums.ReportStatus;
+import co.edu.uniquindio.social_reports.model.enums.Role;
 import co.edu.uniquindio.social_reports.model.enums.UserStatus;
 import co.edu.uniquindio.social_reports.model.vo.Location;
 import co.edu.uniquindio.social_reports.model.vo.ReportHistory;
@@ -18,17 +18,17 @@ import co.edu.uniquindio.social_reports.repositories.CategoryRepository;
 import co.edu.uniquindio.social_reports.repositories.CommentRepository;
 import co.edu.uniquindio.social_reports.repositories.ReportRepository;
 import co.edu.uniquindio.social_reports.repositories.UserRepository;
+import co.edu.uniquindio.social_reports.services.interfaces.EmailService;
 import co.edu.uniquindio.social_reports.services.interfaces.ImageService;
 import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 @RequiredArgsConstructor
@@ -39,23 +39,15 @@ public class ReportServiceImpl implements ReportService {
     private final CategoryRepository categoryRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-    private final ImageService imageService;
+    private final EmailService emailService;
 
     @Override
-    public void createReport(CreateReportDTO reportDTO, MultipartFile[] images) throws Exception {
+    public void createReport(CreateReportDTO reportDTO) throws Exception {
 
         Report report = dtoToEntity(reportDTO);
-
-        List<String> urls = new ArrayList<> ();
-        if(images != null && images.length > 0) {
-            for (MultipartFile image : images) {
-                Map uploadResult = imageService.uploadImage(image);
-                String imageUrl = (String) uploadResult.get("secure_url");
-                urls.add(imageUrl);
-            }
-        }
-        report.setImages(urls);
+        report.setImages(reportDTO.imageUrl());
         report.setCurrentStatus(ReportStatus.PENDING);
+        report.setDate(LocalDateTime.now());
 
         ReportHistory reportHistory = ReportHistory.builder()
                 .status(ReportStatus.PENDING)
@@ -71,9 +63,9 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public void updateReport(String id, UpdateReportDTO reportDTO, MultipartFile[] images) throws Exception {
+    public void updateReport(String id, UpdateReportDTO reportDTO) throws Exception {
         Report report = reportRepository.findById(new ObjectId(id))
-                .orElseThrow(() -> new RuntimeException("Report not found"));
+                .orElseThrow(() -> new ReportNotExistException("Report not found"));
 
         if(!Objects.equals(report.getClientId(), new ObjectId(reportDTO.userId()))) {
             throw new ReportNotBelongToUserException("The report does not belong to the user");
@@ -84,29 +76,19 @@ public class ReportServiceImpl implements ReportService {
         }
 
         Category category = categoryRepository.findCategoryByName(reportDTO.categoryName())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotExistsException("Category not found"));
 
-        report.setTitle(reportDTO.title());
         report.setDescription(reportDTO.description());
         report.setLocation(locationDtoToEntity(reportDTO.location()));
         report.setCategoryId(category.getId());
-
-        List<String> urls = new ArrayList<> ();
-        if(images != null && images.length > 0) {
-            for (MultipartFile image : images) {
-                Map uploadResult = imageService.uploadImage(image);
-                String imageUrl = (String) uploadResult.get("secure_url");
-                urls.add(imageUrl);
-            }
-        }
-        report.setImages(urls);
+        report.setImages(reportDTO.imageUrl());
         reportRepository.save(report);
     }
 
     private Report dtoToEntity(CreateReportDTO reportDTO) {
 
         Category category = categoryRepository.findCategoryByName(reportDTO.categoryName())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotExistsException("Category not found"));
         return Report.builder()
                 .title(reportDTO.title())
                 .categoryId(category.getId())
@@ -127,7 +109,7 @@ public class ReportServiceImpl implements ReportService {
     public void deleteReport(String id, DeleteReportDTO deleteReportDTO) throws Exception {
 
         Report report = reportRepository.findById(new ObjectId(id))
-                .orElseThrow(()-> new RuntimeException("Report not found"));
+                .orElseThrow(()-> new ReportNotExistException("Report not found"));
 
         report.setCurrentStatus(ReportStatus.DELETED);
         ReportHistory reportHistory = ReportHistory.builder()
@@ -147,13 +129,13 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public ReportInfoDTO getReportInfo(String id) throws Exception {
         Report report = reportRepository.findById(new ObjectId(id))
-                .orElseThrow(() -> new RuntimeException("Report not found"));
+                .orElseThrow(() -> new ReportNotExistException("Report not found"));
 
         Category category = categoryRepository.findById(report.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotExistsException("Category not found"));
 
         User user = userRepository.findById(report.getClientId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotExistsException("User not found"));
 
         return new ReportInfoDTO(
                 report.getTitle(),
@@ -193,7 +175,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void setAsImportant(String id, String userId) throws Exception {
         Report report = reportRepository.findById(new ObjectId(id))
-                .orElseThrow(() -> new RuntimeException("Report not found"));
+                .orElseThrow(() -> new ReportNotExistException("Report not found"));
 
         User user = userRepository.findById(new ObjectId(userId))
                 .orElseThrow(()-> new UserNotExistsException("User not found"));
@@ -213,7 +195,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void changeStatus(ChangeStatusDTO changeStatusDTO) throws Exception {
         Report report = reportRepository.findById(new ObjectId(changeStatusDTO.reportId()))
-                .orElseThrow(() -> new RuntimeException("Report not found"));
+                .orElseThrow(() -> new ReportNotExistException("Report not found"));
 
         if(!Objects.equals(report.getClientId(), new ObjectId(changeStatusDTO.userId()))) {
             throw new ReportNotBelongToUserException("The report does not belong to the user");
@@ -240,7 +222,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<ReportInfoDTO> getReportsInfoByCategory(String categoryName) throws Exception {
         Category category = categoryRepository.findCategoryByName(categoryName)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotExistsException("Category not found"));
         List<Report> reports = reportRepository.findAllByCategoryId(category.getId());
         return reports
                 .stream()
@@ -251,7 +233,7 @@ public class ReportServiceImpl implements ReportService {
     private ReportInfoDTO ReportToReportInfoDTO(Report report) {
 
         Category category = categoryRepository.findById(report.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotExistsException("Category not found"));
 
         return new ReportInfoDTO(
                 report.getTitle(),
@@ -266,7 +248,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void checkReport(ChangeStatusDTO dto) throws Exception {
         Report report = reportRepository.findById(new ObjectId(dto.reportId()))
-                .orElseThrow(() -> new RuntimeException("Report not found"));
+                .orElseThrow(() -> new ReportNotExistException("Report not found"));
 
         if(report.getCurrentStatus() == ReportStatus.DELETED){
             throw new ReportDeletedException("This report has been deleted and cannot be edited.");
@@ -290,7 +272,7 @@ public class ReportServiceImpl implements ReportService {
     public void refuseReport(RefuseReportDTO reportDTO) throws Exception {
 
         Report report = reportRepository.findById(new ObjectId(reportDTO.reportId()))
-                .orElseThrow(() -> new RuntimeException("Report not found"));
+                .orElseThrow(() -> new ReportNotExistException("Report not found"));
 
         if(report.getCurrentStatus() == ReportStatus.DELETED){
             throw new ReportDeletedException("This report has been deleted and cannot be edited.");
@@ -313,7 +295,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public void setAsResolved(ChangeStatusDTO dto) throws Exception {
         Report report = reportRepository.findById(new ObjectId(dto.reportId()))
-                .orElseThrow(() -> new RuntimeException("Report not found"));
+                .orElseThrow(() -> new ReportNotExistException("Report not found"));
 
         if(report.getCurrentStatus() == ReportStatus.DELETED){
             throw new ReportDeletedException("This report has been deleted and cannot be edited.");
@@ -336,8 +318,54 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void createViewReport(ViewReportDTO dto) throws Exception {
+        Optional<User> optionalEntity = userRepository.findById(new ObjectId(dto.adminId()));
+        if(optionalEntity.isEmpty()){
+            throw new UserNotExistsException("User not found");
+        }
+        User entity = optionalEntity.get();
 
+        if(!entity.getRole().equals(Role.ADMIN)) throw new IncorrectRoleException("User is not admin");
+
+        Optional<Category> optionalCategory = categoryRepository.findCategoryByName(dto.categoryName());
+        if(optionalCategory.isEmpty()){
+            throw new CategoryNotExistsException("Category not found");
+        }
+        Category category = optionalCategory.get();
+
+        List<Report> reports = reportRepository.findReportsByDateBetweenAndCategoryId(dto.startDate(), dto.endDate(), category.getId());
+
+        if (reports.isEmpty()) {
+            emailService.sendEmail(new EmailDTO(entity.getEmail(), "No existen reportes", "No existen reportes en el rango de fechas: " + dto.startDate().toString() + " - " + dto.endDate().toString()));
+            throw new ReportNotExistException("No existen reportes en el rango de fechas");
+        }
+
+        String html = construirTablaHTML(reports);
+        emailService.sendHTMLEmail(new EmailDTO(entity.getEmail(), "Reporte de fechas especificas", html));
     }
+
+    private String construirTablaHTML(List<Report> reports) {
+        StringBuilder html = new StringBuilder();
+
+        html.append("<h2>Reporte de la categoría</h2>");
+        html.append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>");
+        html.append("<tr style='background-color: #f2f2f2;'>");
+        html.append("<th>Fecha</th>");
+        html.append("<th>Título</th>");
+        html.append("<th>Descripción</th>");
+        html.append("</tr>");
+
+        for (Report report : reports) {
+            html.append("<tr>");
+            html.append("<td>").append(report.getDate()).append("</td>");
+            html.append("<td>").append(report.getTitle()).append("</td>");
+            html.append("<td>").append(report.getDescription()).append("</td>");
+            html.append("</tr>");
+        }
+
+        html.append("</table>");
+        return html.toString();
+    }
+
 
     @Override
     public List<City> getCities() throws Exception {
@@ -365,5 +393,16 @@ public class ReportServiceImpl implements ReportService {
                 .build();
 
         categoryRepository.save(category);
+    }
+
+    @Override
+    public List<CommentDTO> getAllCommentsFromReport(String reportId) throws Exception {
+        List<Comment> comments = commentRepository.findCommentsByReportId(new ObjectId(reportId));
+        if (comments.isEmpty()) {
+            throw new CommentsNotExistsException("El reporte no tiene comentarios");
+        }
+        return comments.stream()
+                .map((comment -> new CommentDTO(comment.getClientId().toString(), comment.getMessage())))
+                .toList();
     }
 }
