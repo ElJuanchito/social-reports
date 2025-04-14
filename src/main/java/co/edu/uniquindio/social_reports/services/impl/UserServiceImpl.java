@@ -85,6 +85,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendPasswordResetCode(String email) throws Exception {
+
         User user = getUserByEmail(email);
 
         ValidationCode validationCode = ValidationCode

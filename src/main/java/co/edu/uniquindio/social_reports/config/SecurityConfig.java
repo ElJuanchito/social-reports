@@ -36,14 +36,24 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Endpoints públicos
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/api/auth/**",
-                                "/api/admin/**").permitAll()
-                        .anyRequest().authenticated()
+                                "/api/auth/**"
+                        ).permitAll()
+
+                        // Solo ADMIN puede acceder
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+
+                        // Cualquier usuario autenticado con rol (ADMIN o CLIENT, por ejemplo)
+                        .requestMatchers(
+                                "/api/users/**",
+                                "/api/images/**",
+                                "/api/reports/**"
+                        ).hasAnyAuthority("ROLE_CLIENT", "ROLE_ADMIN")
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint( new AuthEntryPoint() ))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
