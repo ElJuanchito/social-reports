@@ -74,13 +74,6 @@ public class ReportController {
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report status changed successfully"));
     }
 
-    @Operation(summary = "Obtener lista de ciudades", description = "Se obtiene la lista con todas las ciudades disponibles para los reportes")
-    @GetMapping("/cities")
-    public ResponseEntity< MessageDTO<List<City>> > getCities() throws Exception {
-        List<City> cities = reportService.getCities();
-        return ResponseEntity.status(200).body(new MessageDTO<>(false, cities));
-    }
-
     @Operation(summary = "Obtener lista de estatus", description = "Se obtiene la lista con todas los estatus disponibles para los reportes")
     @GetMapping("/statuses")
     public ResponseEntity< MessageDTO<List<ReportStatus>> > getStatuses() throws Exception {

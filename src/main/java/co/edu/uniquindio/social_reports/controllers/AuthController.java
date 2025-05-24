@@ -5,6 +5,8 @@ import co.edu.uniquindio.social_reports.dtos.reponses.MessageDTO;
 import co.edu.uniquindio.social_reports.dtos.user.ChangePasswordDTO;
 import co.edu.uniquindio.social_reports.dtos.user.LogInDTO;
 import co.edu.uniquindio.social_reports.dtos.user.RegisterUserDTO;
+import co.edu.uniquindio.social_reports.model.enums.City;
+import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import co.edu.uniquindio.social_reports.services.interfaces.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+    private final ReportService reportService;
 
     @Operation(summary = "Inciar sesion", description = "Permite iniciar sesion en la plataforma mediante el correo y la contrena")
     @PostMapping("/login")
@@ -62,5 +67,12 @@ public class AuthController {
     public ResponseEntity<MessageDTO<String>> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) throws Exception {
         userService.changePassword(changePasswordDTO);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Password changed successfully"));
+    }
+
+    @Operation(summary = "Obtener lista de ciudades", description = "Se obtiene la lista con todas las ciudades disponibles para los reportes")
+    @GetMapping("/cities")
+    public ResponseEntity< MessageDTO<List<City>> > getCities() throws Exception {
+        List<City> cities = reportService.getCities();
+        return ResponseEntity.status(200).body(new MessageDTO<>(false, cities));
     }
 }
