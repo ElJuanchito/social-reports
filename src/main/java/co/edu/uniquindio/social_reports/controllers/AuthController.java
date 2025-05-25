@@ -31,6 +31,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<MessageDTO<TokenDTO>> logIn(@RequestBody @Valid LogInDTO loginDTO) throws Exception {
         TokenDTO tokenDTO = userService.logIn(loginDTO);
+        System.out.println(loginDTO);
+        System.out.println(tokenDTO);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, tokenDTO));
     }
 

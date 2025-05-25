@@ -41,8 +41,8 @@ public class ReportController {
 
     @Operation(summary = "Eliminar reporte", description = "Elimina un reporte de la base de datos mediante el id del reporte")
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageDTO<String>> deleteReport(@PathVariable String id, @RequestBody DeleteReportDTO dto) throws Exception {
-        reportService.deleteReport(id, dto);
+    public ResponseEntity<MessageDTO<String>> deleteReport(@PathVariable String id) throws Exception {
+        reportService.deleteReport(id);
         return ResponseEntity.status(200).body(new MessageDTO<>(false, "Report deleted successfully"));
     }
 
@@ -95,5 +95,20 @@ public class ReportController {
         List<CommentDTO> comments = reportService.getAllCommentsFromReport(reportId);
         return new MessageDTO<>(false, comments);
     }
+
+    @Operation(summary = "Obtener reportes por ubicación", description = "Obtiene una lista de reportes filtrados por ciudad")
+    @GetMapping("/filter")
+    public ResponseEntity<MessageDTO<List<ReportInfoDTO>>> getReportsByLocation(@RequestParam double latitude, @RequestParam double longitude) throws Exception {
+        List<ReportInfoDTO> reports = reportService.getReportsByLocation(latitude, longitude);
+        return ResponseEntity.status(200).body(new MessageDTO<>(false, reports));
+    }
+
+    @Operation(summary = "Obtener todos los reportes", description = "Obtiene una lista con todos los reportes disponibles")
+    @GetMapping
+    public ResponseEntity<MessageDTO<List<ReportInfoDTO>>> getAllReports(@RequestParam int page, @RequestParam int size) throws Exception {
+        List<ReportInfoDTO> reports = reportService.getAllReports(page, size);
+        return ResponseEntity.status(200).body(new MessageDTO<>(false, reports));
+    }
+
 
 }

@@ -23,6 +23,7 @@ import co.edu.uniquindio.social_reports.services.interfaces.ImageService;
 import co.edu.uniquindio.social_reports.services.interfaces.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ public class ReportServiceImpl implements ReportService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private static final double LOCATION_RANGE = 0.01; // Approximately 1km range
 
     @Override
     public void createReport(CreateReportDTO reportDTO) throws Exception {
@@ -106,7 +108,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public void deleteReport(String id, DeleteReportDTO deleteReportDTO) throws Exception {
+    public void deleteReport(String id) throws Exception {
 
         Report report = reportRepository.findById(new ObjectId(id))
                 .orElseThrow(()-> new ReportNotExistException("Report not found"));
@@ -115,7 +117,7 @@ public class ReportServiceImpl implements ReportService {
         ReportHistory reportHistory = ReportHistory.builder()
                 .status(ReportStatus.DELETED)
                 .date(LocalDateTime.now())
-                .clientId(new ObjectId(deleteReportDTO.userID()))
+                .clientId(report.getClientId())
                 .comments("Report deleted")
                 .build();
 
@@ -403,6 +405,30 @@ public class ReportServiceImpl implements ReportService {
         }
         return comments.stream()
                 .map((comment -> new CommentDTO(comment.getClientId().toString(), comment.getMessage())))
+                .toList();
+    }
+
+    @Override
+    public List<ReportInfoDTO> getAllReports(int page, int size) throws Exception {
+        return reportRepository.findAll(PageRequest.of(page, size))
+                .stream()
+                .map(this::ReportToReportInfoDTO)
+                .toList();
+    }
+
+
+
+    @Override
+    public List<ReportInfoDTO> getReportsByLocation(double lat, double lon) throws Exception {
+        List<Report> reports = reportRepository.findAll();
+        return reports.stream()
+                .filter(report -> {
+                    double reportLat = report.getLocation().getLatitude();
+                    double reportLon = report.getLocation().getLongitude();
+                    return Math.abs(reportLat - lat) <= LOCATION_RANGE &&
+                            Math.abs(reportLon - lon) <= LOCATION_RANGE;
+                })
+                .map(this::ReportToReportInfoDTO)
                 .toList();
     }
 }

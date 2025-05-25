@@ -12,7 +12,7 @@ public interface ReportService {
 
     void createReport(CreateReportDTO reportDTO) throws Exception;
     void updateReport(String id, UpdateReportDTO reportDTO) throws Exception;
-    void deleteReport(String id, DeleteReportDTO dto) throws Exception;
+    void deleteReport(String id) throws Exception;
     ReportInfoDTO getReportInfo(String id) throws Exception;
     void addCommentToReport(String id, CommentDTO commentDTO) throws Exception;
     void setAsImportant(String id, String userId) throws Exception;
@@ -27,4 +27,6 @@ public interface ReportService {
     List<CategoryDTO> getCategories() throws Exception;
     void createCategory(CategoryDTO categoryDTO) throws Exception;
     List<CommentDTO> getAllCommentsFromReport(String reportId) throws Exception;
+    List<ReportInfoDTO> getAllReports(int page, int size) throws Exception;
+    List<ReportInfoDTO> getReportsByLocation(double lat, double lon) throws Exception;
 }
